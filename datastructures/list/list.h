@@ -1,0 +1,42 @@
+#ifndef LIST_H
+#define LIST_H
+
+#include "../../libs/logging/logging.h"
+#include "../../libs/types.h"
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef int list_elem_t;
+
+typedef struct
+{
+    list_elem_t* data;
+    size_t*      next;
+    size_t*      prev;
+
+    size_t       list_size;
+    size_t       free_index;
+} list_t;
+
+#define DEFAULT_LIST_SIZE 4
+#define LIST_FREE ((size_t)-1)
+
+#define CREATE_LIST(list_name) \
+    list_t list_name = { 0 };  \
+    list_ctor(&(list_name))
+
+err_t list_ctor(list_t * const list);
+err_t list_dtor(list_t * const list);
+
+err_t get_elem       (const list_t * const list, const size_t index, list_elem_t* elem);
+err_t ins_elem_before(      list_t * const list, const size_t index, list_elem_t elem);
+err_t ins_elem_after (      list_t * const list, const size_t index, list_elem_t elem);
+err_t del_elem       (      list_t * const list, const size_t index);
+
+err_t get_next(const list_t * const list, const size_t index, list_elem_t* elem);
+err_t get_prev(const list_t * const list, const size_t index, list_elem_t* elem);
+
+#endif

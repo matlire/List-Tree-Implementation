@@ -1,0 +1,1 @@
+gcc -fsanitize=address,leak,undefined -O2 -Wall -Wextra -Wno-unused-function -lm -D __DEBUG__ -I./ libs/logging/logging.c libs/io/io.c datastructures/list/list.c datastructures/list/dump/dump.c main.c -o dist/main.out
