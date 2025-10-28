@@ -2,6 +2,7 @@
 #define DUMP_H
 
 #include "../list.h"
+#include "../../../libs/logging/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>

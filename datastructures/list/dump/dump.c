@@ -56,8 +56,8 @@ static int is_linearized(const list_t* l, size_t cap)
     }
 }
 
-void list_dump(const list_t *list, size_t capacity,
-               const char *title, const char *html_file)
+void list_dump(const list_t *list,  size_t capacity,
+               const char   *title, const char *html_file)
 {
     if (!list || !html_file || capacity == 0) return;
 
@@ -71,7 +71,7 @@ void list_dump(const list_t *list, size_t capacity,
 
     char dot_path[512], svg_name[64], svg_path[512];
     snprintf(svg_name, sizeof(svg_name), "img%zu.svg", s_img_counter++);
-    snprintf(dot_path, sizeof(dot_path), "temp/%s", "graph.dot");
+    snprintf(dot_path, sizeof(dot_path), "temp/graph.dot");
     snprintf(svg_path, sizeof(svg_path), "temp/%s", svg_name);
 
     FILE *dot = fopen(dot_path, "w");
@@ -90,6 +90,7 @@ void list_dump(const list_t *list, size_t capacity,
     const char *OUT_SENT    = "#7F56D9";
     const char *OUT_OTHER   = "#EF4444";
 
+    fprintf(dot, "digraph G {");
     fprintf(dot, "rankdir=LR;\n");
     fprintf(dot, "graph [bgcolor=\"#FCFCFD\", pad=0.25, nodesep=0.55, ranksep=0.9, splines=true];\n");
     fprintf(dot, "node  [shape=box, style=\"rounded,filled\", color=\"#D0D5DD\", penwidth=1.4, "
@@ -154,6 +155,7 @@ void list_dump(const list_t *list, size_t capacity,
             if (list->next[i] == i) break;
         }
     }
+    fprintf(dot, "}");
     fclose(dot);
 
     free(on_main);
@@ -161,7 +163,8 @@ void list_dump(const list_t *list, size_t capacity,
     free(virtpos);
 
     char cmd[4096];
-    snprintf(cmd, sizeof(cmd), "dot -Tsvg '%s' -o '%s'", dot_path, svg_path);
+    snprintf(cmd, sizeof(cmd), "dot -T svg '%s' -o '%s'", dot_path, svg_path);
+    system(cmd);
 
     FILE *html = fopen(html_file, "a");
     if (!html) return;

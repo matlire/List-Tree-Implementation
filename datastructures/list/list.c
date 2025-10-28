@@ -207,8 +207,8 @@ err_t del_elem(list_t * const list, const size_t index)
     size_t prv = list->prev[index];
     size_t nxt = list->next[index];
 
-    if (prv) list->next[prv] = nxt; else list->next[0] = nxt; // removed head?
-    if (nxt) list->prev[nxt] = prv; else list->prev[0] = prv; // removed tail?
+    list->next[prv] = nxt; 
+    list->prev[nxt] = prv;
 
     push_free(list, index);
     return OK;
