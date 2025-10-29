@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <limits.h>
 
 typedef int list_elem_t;
 
@@ -17,7 +19,9 @@ typedef struct
     size_t*      next;
     size_t*      prev;
 
+    size_t       list_capacity;
     size_t       list_size;
+
     size_t       free_index;
 } list_t;
 
@@ -38,5 +42,8 @@ err_t del_elem       (      list_t * const list, const size_t index);
 
 err_t get_next(const list_t * const list, const size_t index, list_elem_t* elem);
 err_t get_prev(const list_t * const list, const size_t index, list_elem_t* elem);
+
+err_t get_head(const list_t * const list, list_elem_t* elem);
+err_t get_tail(const list_t * const list, list_elem_t* elem);
 
 #endif

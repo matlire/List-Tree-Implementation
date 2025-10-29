@@ -1,11 +1,10 @@
-
 #include "libs/types.h"
 #include "datastructures/list/dump/dump.h"
 #include "datastructures/list/list.h"
-#include <stdlib.h> // for system()
+#include <stdlib.h>
 
 #define DUMP(list_ptr, title_str) \
-    list_dump((list_ptr), (list_ptr)->list_size, (title_str), "gdump.html")
+    list_dump((list_ptr), (list_ptr)->list_capacity, (title_str), "gdump.html")
 
 int main(const int argc, char* const argv[])
 {
@@ -39,7 +38,7 @@ int main(const int argc, char* const argv[])
     del_elem(&l1, 1);             DUMP(&l1, "after delete index 1");
     del_elem(&l1, 6);             DUMP(&l1, "after delete index 6");
 
-    ins_elem_before(&l1, 2, 10); DUMP(&l1, "before insert 10 (before 2)");
+    ins_elem_before(&l1, 2, 10);  DUMP(&l1, "before insert 10 (before 2)");
     ins_elem_after (&l1, 5, 60);  DUMP(&l1, "after insert 60 (after 5)");
 
     list_dtor(&l1);

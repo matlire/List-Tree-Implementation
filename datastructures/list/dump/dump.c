@@ -13,23 +13,6 @@ void list_dump_reset(const char *html_file)
     s_img_counter = 0;
 }
 
-static size_t mark_main_and_logpos(const list_t* l, size_t cap, bool* on_main, long* virt_pos)
-{
-    for (size_t i = 0; i < cap; ++i) { on_main[i] = false; virt_pos[i] = -1; }
-
-    virt_pos[0]  = 0;
-    size_t cnt   = 0;
-    size_t steps = 0;
-    for (size_t cur = l->next[0]; cur && in_bounds(cur, cap) && steps++ < cap; cur = l->next[cur]) {
-        if (is_free_node(l, cur)) break;
-        if (on_main[cur]) break;
-        on_main[cur]  = true;
-        virt_pos[cur] = (long)(++cnt);
-        if (l->next[cur] == cur) break;
-    }
-    return cnt;
-}
-
 static void mark_free_chain(const list_t* l, size_t cap, bool* on_free)
 {
     size_t steps = 0;
@@ -66,7 +49,6 @@ void list_dump(const list_t *list,  size_t capacity,
     long *virtpos = (long*)calloc(capacity, sizeof(long));
     if (!on_main || !on_free || !virtpos) { free(on_main); free(on_free); free(virtpos); return; }
 
-    const size_t used_cnt = mark_main_and_logpos(list, capacity, on_main, virtpos);
     mark_free_chain(list, capacity, on_free);
 
     char dot_path[512], svg_name[64], svg_path[512];
@@ -131,18 +113,24 @@ void list_dump(const list_t *list,  size_t capacity,
         fprintf(dot, "label%zu -> label%zu [color=\"%s\", style=\"dashed\", arrowhead=\"none\", weight=6, minlen=1];\n", i, i + 1, EDGE_PHYS);
     }
 
+    const size_t head = list->next[0];
+    const size_t tail = list->prev[0];
+
     for (size_t i = 0; i < capacity; ++i) {
         size_t j = list->next[i];
-        if (j && in_bounds(j, capacity) && !is_free_node(list, j)) {
-            if (i == 0 || !is_free_node(list, i))
-                fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_NEXT);
-        }
-    }
+        if (!j || !in_bounds(j, capacity)) continue;
+        if (is_free_node(list, j)) continue;
+        if (i != 0 && is_free_node(list, i)) continue;
+        if (i == tail && j == head) continue;
+        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_NEXT);
+    }    
 
     for (size_t i = 0; i < capacity; ++i) {
         size_t j = list->prev[i];
-        if (j && in_bounds(j, capacity) && !is_free_node(list, i) && !is_free_node(list, j))
-            fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_PREV);
+        if (!j || !in_bounds(j, capacity)) continue;
+        if (is_free_node(list, i) || is_free_node(list, j)) continue;
+        if (i == head && j == tail) continue;
+        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_PREV);
     }
 
     if (list->free_index && in_bounds(list->free_index, capacity)) {
@@ -173,7 +161,7 @@ void list_dump(const list_t *list,  size_t capacity,
 
     fprintf(html, "<hr>\n");
     fprintf(html, "<h2>%s</h2>\n", title ? title : "List dump");
-    fprintf(html, "<h3>Size: %zu, capacity: %zu</h3>\n", used_cnt, list->list_size);
+    fprintf(html, "<h3>Size: %zu, capacity: %zu</h3>\n", list->list_size, list->list_capacity);
     fprintf(html, "<h3>Head: %zu, Tail: %zu, Free: %zu</h3>\n", list->next[0], list->prev[0], list->free_index);
     fprintf(html, "<h3>Linearized: %d, needLinear: 1</h3>\n", linear);
     fprintf(html, "<h3>List addr: 0x%p</h3>\n", (void*)list);
