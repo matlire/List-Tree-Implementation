@@ -19,8 +19,10 @@ int main(const int argc, char* const argv[])
     CREATE_LIST(l1);
     DUMP(&l1, "after ctor");
 
-    ins_elem_after(&l1, 0, 10);  DUMP(&l1, "after insert 10 (after 0)");
-    ins_elem_after(&l1, 1, 20);  DUMP(&l1, "after insert 20 (after 1)");
+    size_t real_index = 0;
+    push_front(&l1, 10, &real_index); DUMP(&l1, "push front 10 (after 0)");
+    push_back (&l1, 20, &real_index); DUMP(&l1, "push back 20 (after 1)");
+
     ins_elem_after(&l1, 2, 30);  DUMP(&l1, "after insert 30 (after 2)");
     ins_elem_after(&l1, 3, 40);  DUMP(&l1, "after insert 40 (after 3)");
     ins_elem_after(&l1, 4, 50);  DUMP(&l1, "after insert 50 (after 4)");

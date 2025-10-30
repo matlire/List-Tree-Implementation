@@ -252,3 +252,20 @@ err_t del_elem(list_t * const list, const size_t index)
     return OK;
 }
 
+err_t push_front(list_t * const list, list_elem_t elem, size_t * real_index)
+{
+    if (!CHECK(ERROR, list && real_index, "bad args")) return ERR_BAD_ARG;
+    const err_t rc = ins_elem_after(list, 0, elem);
+    if (rc != OK) return rc;
+    *real_index = list->next[0];
+    return OK;
+}
+
+err_t push_back(list_t * const list, list_elem_t elem, size_t * real_index)
+{
+    if (!CHECK(ERROR, list && real_index, "bad args")) return ERR_BAD_ARG;
+    const err_t rc = ins_elem_before(list, 0, elem);
+    if (rc != OK) return rc;
+    *real_index = list->prev[0];
+    return OK;
+}
