@@ -1,0 +1,1 @@
+[30-10-2025 16:52:05 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch

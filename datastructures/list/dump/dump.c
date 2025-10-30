@@ -60,22 +60,26 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
     FILE *dot = fopen(dot_path, "w");
     if (!dot) { free(on_main); free(on_free); free(virtpos); return; }
 
-    const char *EDGE_NEXT   = "#22C55E";
-    const char *EDGE_PREV   = "#EF4444";
-    const char *EDGE_FREE   = "#A855F7";
-    const char *EDGE_PHYS   = "#DCE6E3";
+    const char *EDGE_NEXT = "#00E676";
+    const char *EDGE_PREV = "#2962FF";
+    const char *EDGE_FREE = "#D500F9";
+    const char *EDGE_PHYS = "#B0BEC5";
 
-    const char *CELL_BG     = "#FFFFFF";
-    const char *CELL_DATA   = "#EEF4FF";
+    const char *CELL_BG   = "#FFFFFF";
+    const char *CELL_DATA = "#F5F7FF";
 
-    const char *OUT_USE     = "#16A34A";
-    const char *OUT_FREE    = "#7F56D9";
-    const char *OUT_SENT    = "#7F56D9";
-    const char *OUT_OTHER   = "#EF4444";
+    const char *OUT_USE   = "#10B981";  /* slight green */
+    const char *OUT_FREE  = "#D500F9";
+    const char *OUT_SENT  = "#F59E0B";  /* amber (not blue) */
+    const char *OUT_OTHER = "#9AA5B1";
+
+    const char *BAD_OUT   = "#FF1744";
+    const char *BAD_FILL  = "#FFE9EE";
+    const char *EDGE_PREV_PATCHED = "#FF1744";
 
     fprintf(dot, "digraph G {");
     fprintf(dot, "rankdir=LR;\n");
-    fprintf(dot, "graph [bgcolor=\"#FCFCFD\", pad=0.25, nodesep=0.55, ranksep=0.9, splines=true];\n");
+    fprintf(dot, "graph [bgcolor=\"#F7F7F7\", pad=0.25, nodesep=0.55, ranksep=0.9, splines=true];\n");
     fprintf(dot, "node  [shape=box, style=\"rounded,filled\", color=\"#D0D5DD\", penwidth=1.4, "
                  "fillcolor=\"%s\", fontname=\"monospace\", fontsize=10];\n", CELL_BG);
     fprintf(dot, "edge  [color=\"#98A2B3\", penwidth=1.5, arrowsize=0.8, arrowhead=vee];\n");
@@ -124,13 +128,13 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
         if (!j) continue;
 
         if (!in_bounds(j, capacity) || is_free_node(list, j)) {
-            fprintf(dot,
-            "badn_%zu [shape=hexagon, style=\"bold\", color=\"#FF0000\", penwidth=4, label=\"%zu\"];\n",
-            i, (unsigned long)j);
+            fprintf(dot, 
+            "badn_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
+            i, BAD_FILL, BAD_OUT, (unsigned long)j);
             
             fprintf(dot,
             "label%zu -> badn_%zu [color=\"%s\", penwidth=2.5, style=bold];\n",
-            i, i, EDGE_NEXT);
+            i, i, EDGE_PREV_PATCHED);
             
             continue;
         }
@@ -147,13 +151,13 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
         if (!j) continue;
 
         if (!in_bounds(j, capacity) || is_free_node(list, j)) {
-            fprintf(dot,
-            "badp_%zu [shape=hexagon, style=\"bold\", color=\"#FF0000\", penwidth=4, label=\"%zu\"];\n",
-            i, (unsigned long)j);
+            fprintf(dot, 
+            "badp_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
+            i, BAD_FILL, BAD_OUT, (unsigned long)j);
             
             fprintf(dot,
             "label%zu -> badp_%zu [color=\"%s\", penwidth=2.5, style=bold];\n",
-            i, i, EDGE_PREV);
+            i, i, EDGE_PREV_PATCHED);
 
             continue;
         }
@@ -189,6 +193,7 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
 
     const int linear = is_linearized(list, capacity);
 
+    fprintf(html, "<body style=\"background-color:#F7F7F7;\">");
     fprintf(html, "<hr>\n");
     fprintf(html, "<h2>%s</h2>\n", title ? title : "List dump");
     fprintf(html, "<h3>Size: %zu, capacity: %zu</h3>\n", list->list_size, list->list_capacity);

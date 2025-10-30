@@ -23,11 +23,11 @@ int main(const int argc, char* const argv[])
     push_back (&l1, 20, &real_index); DUMP(&l1, "push back 20 (after 1)");
     ins_elem_after(&l1, 2, 30);       DUMP(&l1, "after insert 30 (after 2)");
     
-    /*
+    
     l1.prev[2] = 5;
     DUMP(&l1, "after spoiling");
     list_verify(&l1);
-    */
+    
 
     ins_elem_after(&l1, 3, 40);  DUMP(&l1, "after insert 40 (after 3)");
     ins_elem_after(&l1, 4, 50);  DUMP(&l1, "after insert 50 (after 4)");
