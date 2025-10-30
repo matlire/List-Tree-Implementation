@@ -39,10 +39,11 @@ static int is_linearized(const list_t* l, size_t cap)
     }
 }
 
-void list_dump(const list_t *list,  size_t capacity,
-               const char   *title, const char *html_file)
+void list_dump(const list_t *list, const char   *title, const char *html_file)
 {
-    if (!list || !html_file || capacity == 0) return;
+    if (!list || !html_file) return;
+
+    size_t capacity = list->list_capacity;
 
     bool *on_main = (bool*)calloc(capacity, sizeof(bool));
     bool *on_free = (bool*)calloc(capacity, sizeof(bool));
@@ -117,20 +118,49 @@ void list_dump(const list_t *list,  size_t capacity,
     const size_t tail = list->prev[0];
 
     for (size_t i = 0; i < capacity; ++i) {
-        size_t j = list->next[i];
-        if (!j || !in_bounds(j, capacity)) continue;
-        if (is_free_node(list, j)) continue;
         if (i != 0 && is_free_node(list, i)) continue;
+        size_t j = list->next[i];
+
+        if (!j) continue;
+
+        if (!in_bounds(j, capacity) || is_free_node(list, j)) {
+            fprintf(dot,
+            "badn_%zu [shape=hexagon, style=\"bold\", color=\"#FF0000\", penwidth=4, label=\"%zu\"];\n",
+            i, (unsigned long)j);
+            
+            fprintf(dot,
+            "label%zu -> badn_%zu [color=\"%s\", penwidth=2.5, style=bold];\n",
+            i, i, EDGE_NEXT);
+            
+            continue;
+        }
+
         if (i == tail && j == head) continue;
-        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_NEXT);
-    }    
+        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n",
+                i, j, EDGE_NEXT);
+    }
 
     for (size_t i = 0; i < capacity; ++i) {
+        if (i != 0 && is_free_node(list, i)) continue;
         size_t j = list->prev[i];
-        if (!j || !in_bounds(j, capacity)) continue;
-        if (is_free_node(list, i) || is_free_node(list, j)) continue;
+
+        if (!j) continue;
+
+        if (!in_bounds(j, capacity) || is_free_node(list, j)) {
+            fprintf(dot,
+            "badp_%zu [shape=hexagon, style=\"bold\", color=\"#FF0000\", penwidth=4, label=\"%zu\"];\n",
+            i, (unsigned long)j);
+            
+            fprintf(dot,
+            "label%zu -> badp_%zu [color=\"%s\", penwidth=2.5, style=bold];\n",
+            i, i, EDGE_PREV);
+
+            continue;
+        }
+
         if (i == head && j == tail) continue;
-        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n", i, j, EDGE_PREV);
+        fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n",
+                i, j, EDGE_PREV);
     }
 
     if (list->free_index && in_bounds(list->free_index, capacity)) {

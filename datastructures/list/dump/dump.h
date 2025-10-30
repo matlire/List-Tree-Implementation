@@ -14,8 +14,7 @@
 
 void list_dump_reset(const char* html_file);
 
-void list_dump(const list_t* list, size_t capacity,
-               const char* title, const char* html_file);
+void list_dump(const list_t* list, const char* title, const char* html_file);
 
 #endif
 
