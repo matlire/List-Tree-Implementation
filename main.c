@@ -21,7 +21,7 @@ int main(const int argc, char* const argv[])
     size_t real_index = 0;
     push_front(&l1, 10, &real_index); DUMP(&l1, "push front 10 (after 0)");
     push_back (&l1, 20, &real_index); DUMP(&l1, "push back 20 (after 1)");
-    ins_elem_after(&l1, 2, 30);  DUMP(&l1, "after insert 30 (after 2)");
+    ins_elem_after(&l1, 2, 30);       DUMP(&l1, "after insert 30 (after 2)");
     
     /*
     l1.prev[2] = 5;
