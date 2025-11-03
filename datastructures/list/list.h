@@ -42,13 +42,15 @@ err_t ins_elem_before(      list_t * const list, const size_t index, const list_
 err_t ins_elem_after (      list_t * const list, const size_t index, const list_elem_t elem);
 err_t del_elem       (      list_t * const list, const size_t index);
 
-err_t get_next(const list_t * const list, const size_t index, list_elem_t * const elem);
-err_t get_prev(const list_t * const list, const size_t index, list_elem_t * const elem);
+err_t get_next(const list_t * const list, const size_t index, size_t * const elem);
+err_t get_prev(const list_t * const list, const size_t index, size_t * const elem);
 
-err_t get_head(const list_t * const list, list_elem_t * const elem);
-err_t get_tail(const list_t * const list, list_elem_t * const elem);
+err_t get_head(const list_t * const list, size_t * const elem);
+err_t get_tail(const list_t * const list, size_t * const elem);
 
 err_t push_front(list_t * const list, list_elem_t elem, size_t * const real_index);
 err_t push_back (list_t * const list, list_elem_t elem, size_t * const real_index);
+
+err_t list_linearize(list_t * const list);
 
 #endif

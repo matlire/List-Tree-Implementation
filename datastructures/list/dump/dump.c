@@ -21,7 +21,7 @@ static void mark_free_chain(const list_t* l, size_t cap, bool* on_free)
         if (on_free[cur]) break;
         on_free[cur] = true;
         if (l->next[cur] == cur) break;
-    }
+    } 
 }
 
 static int is_linearized(const list_t* l, size_t cap)
@@ -34,7 +34,7 @@ static int is_linearized(const list_t* l, size_t cap)
         if (nxt == 0) return 1;
         if (!in_bounds(nxt, cap) || is_free_node(l, nxt)) return 0;
         if (nxt != cur + 1) return 0;
-        if (steps > cap)     return 0;
+        if (steps > cap)    return 0;
         cur = nxt;
     }
 }
@@ -52,6 +52,22 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
 
     mark_free_chain(list, capacity, on_free);
 
+    on_main[0] = true;
+    virtpos[0] = 0;
+
+    size_t cur = list->next[0];
+    size_t pos = 1;
+    for (size_t steps = 0; steps < list->list_size && cur && cur < capacity; ++steps) 
+    {
+        if (on_main[cur] || is_free_node(list, cur)) break;
+        on_main[cur] = true;
+        virtpos[cur] = (size_t)pos++;
+        cur = list->next[cur];
+    }
+
+    for (size_t i = 1; i < capacity; ++i)
+        if (!on_main[i]) virtpos[i] = SIZE_MAX;
+
     char dot_path[512], svg_name[64], svg_path[512];
     snprintf(svg_name, sizeof(svg_name), "img%zu.svg", s_img_counter++);
     snprintf(dot_path, sizeof(dot_path), "temp/graph.dot");
@@ -68,9 +84,9 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
     const char *CELL_BG   = "#FFFFFF";
     const char *CELL_DATA = "#F5F7FF";
 
-    const char *OUT_USE   = "#10B981";  /* slight green */
+    const char *OUT_USE   = "#10B981";
     const char *OUT_FREE  = "#D500F9";
-    const char *OUT_SENT  = "#F59E0B";  /* amber (not blue) */
+    const char *OUT_SENT  = "#F59E0B";
     const char *OUT_OTHER = "#9AA5B1";
 
     const char *BAD_OUT   = "#FF1744";
@@ -96,13 +112,18 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
         int   val    = (int)list->data[i];
         void* addr   = (void*)&list->data[i];
 
+        char vbuf[32] = { 0 };
+        const char *vstr = "-";
+        if (i == 0) vstr = "0";
+        else if (virtpos[i] > 0) { snprintf(vbuf, sizeof vbuf, "%ld", virtpos[i]); vstr = vbuf; }
+
         fprintf(dot,
           "label%zu [color=\"%s\", penwidth=2.1, label=<"
           "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\" COLOR=\"#D0D5DD\">"
             "<TR><TD COLSPAN=\"6\" BGCOLOR=\"%s\"><B>addr:</B> 0x%p</TD></TR>"
             "<TR>"
               "<TD BGCOLOR=\"%s\"><B>phys:</B> %zu</TD>"
-              "<TD BGCOLOR=\"%s\"><B>virt:</B> %ld</TD>"
+              "<TD BGCOLOR=\"%s\"><B>virt:</B> %s</TD>"
               "<TD BGCOLOR=\"%s\"><B>val:</B> %d</TD>"
               "<TD BGCOLOR=\"%s\"><B>n:</B> %ld</TD>"
               "<TD BGCOLOR=\"%s\"><B>p:</B> %ld</TD>"
@@ -110,27 +131,30 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
           "</TABLE>"
           ">];\n",
           i, outline, CELL_DATA, addr,
-          CELL_DATA, i, CELL_DATA, virtpos[i],
+          CELL_DATA, i, CELL_DATA, vstr,
           CELL_DATA, val, CELL_DATA, n_show, CELL_DATA, p_show);
     }
 
-    for (size_t i = 0; i + 1 < capacity; ++i) {
+    for (size_t i = 0; i + 1 < capacity; ++i) 
+    {
         fprintf(dot, "label%zu -> label%zu [color=\"%s\", style=\"dashed\", arrowhead=\"none\", weight=6, minlen=1];\n", i, i + 1, EDGE_PHYS);
     }
 
     const size_t head = list->next[0];
     const size_t tail = list->prev[0];
 
-    for (size_t i = 0; i < capacity; ++i) {
+    for (size_t i = 0; i < capacity; ++i)
+    {
         if (i != 0 && is_free_node(list, i)) continue;
         size_t j = list->next[i];
 
         if (!j) continue;
 
-        if (!in_bounds(j, capacity) || is_free_node(list, j)) {
+        if (!in_bounds(j, capacity) || is_free_node(list, j)) 
+        {
             fprintf(dot, 
             "badn_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
-            i, BAD_FILL, BAD_OUT, (unsigned long)j);
+            i, BAD_FILL, BAD_OUT, (size_t)j);
             
             fprintf(dot,
             "label%zu -> badn_%zu [color=\"%s\", penwidth=2.5, style=bold];\n",
@@ -144,13 +168,15 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
                 i, j, EDGE_NEXT);
     }
 
-    for (size_t i = 0; i < capacity; ++i) {
+    for (size_t i = 0; i < capacity; ++i) 
+    {
         if (i != 0 && is_free_node(list, i)) continue;
         size_t j = list->prev[i];
 
         if (!j) continue;
 
-        if (!in_bounds(j, capacity) || is_free_node(list, j)) {
+        if (!in_bounds(j, capacity) || is_free_node(list, j)) 
+        {
             fprintf(dot, 
             "badp_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
             i, BAD_FILL, BAD_OUT, (unsigned long)j);
@@ -163,11 +189,13 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
         }
 
         if (i == head && j == tail) continue;
+
         fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=1.9];\n",
                 i, j, EDGE_PREV);
     }
 
-    if (list->free_index && in_bounds(list->free_index, capacity)) {
+    if (list->free_index && in_bounds(list->free_index, capacity))
+    {
         for (size_t i = list->free_index, steps = 0;
              i && in_bounds(i, capacity) && steps++ < capacity; i = list->next[i])
         {
@@ -177,6 +205,7 @@ void list_dump(const list_t *list, const char   *title, const char *html_file)
             if (list->next[i] == i) break;
         }
     }
+
     fprintf(dot, "}");
     fclose(dot);
 

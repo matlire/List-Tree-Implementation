@@ -236,7 +236,7 @@ err_t get_elem(const list_t * const list, const size_t index, list_elem_t* elem)
     return OK;
 }
 
-err_t get_next(const list_t * const list, const size_t index, list_elem_t * const elem)
+err_t get_next(const list_t * const list, const size_t index, size_t * const elem)
 {
     if (!CHECK(ERROR, list && elem, "bad args"))         return ERR_BAD_ARG;
     if (!CHECK(ERROR, idx_valid(list, index), "range"))  return ERR_BAD_ARG;
@@ -245,7 +245,7 @@ err_t get_next(const list_t * const list, const size_t index, list_elem_t * cons
     return OK;
 }
 
-err_t get_prev(const list_t * const list, const size_t index, list_elem_t * const elem)
+err_t get_prev(const list_t * const list, const size_t index, size_t * const elem)
 {
     if (!CHECK(ERROR, list && elem, "bad args"))         return ERR_BAD_ARG;
     if (!CHECK(ERROR, idx_valid(list, index), "range"))  return ERR_BAD_ARG;
@@ -254,99 +254,76 @@ err_t get_prev(const list_t * const list, const size_t index, list_elem_t * cons
     return OK;
 }
 
-err_t get_head(const list_t * const list, list_elem_t * const elem)
+err_t get_head(const list_t * const list, size_t * const elem)
 {
     if (!CHECK(ERROR, list && elem, "bad args"))         return ERR_BAD_ARG;
     *elem = list->next[0];
     return OK; 
 }
 
-err_t get_tail(const list_t * const list, list_elem_t * const elem)
+err_t get_tail(const list_t * const list, size_t * const elem)
 {
     if (!CHECK(ERROR, list && elem, "bad args"))         return ERR_BAD_ARG;
     *elem = list->prev[0];
     return OK; 
 }
 
+static inline void link_between(list_t* L, size_t left, size_t mid, size_t right) 
+{
+    L->next[left] = mid;
+    L->prev[mid]  = left;
+    L->next[mid]  = right;
+    L->prev[right]= mid;
+}
+
+static inline void unlink_node(list_t* L, size_t i) 
+{
+    size_t p = L->prev[i];
+    size_t n = L->next[i];
+    L->next[p] = n;
+    L->prev[n] = p;
+    if (i == L->next[0]) L->next[0] = n;
+    if (i == L->prev[0]) L->prev[0] = p;
+}
+
+#define INS_MACROS                                                                              \
+    if (!CHECK(ERROR, list, "null")) return ERR_BAD_ARG;                                        \
+    if (!CHECK(ERROR, idx_valid(list, index), "range")) return ERR_BAD_ARG;                     \
+    if (index != 0 && !CHECK(ERROR, !idx_is_free(list, index), "free idx")) return ERR_BAD_ARG; \
+    if (ensure_slot(list) != OK) return ERR_ALLOC;                                              \
+ 
 err_t ins_elem_after(list_t * const list, const size_t index, const list_elem_t elem)
 {
-    if (!CHECK(ERROR, list, "null")) return ERR_BAD_ARG;
-    if (!CHECK(ERROR, idx_valid(list, index), "range")) return ERR_BAD_ARG;
-    if (index != 0 && !CHECK(ERROR, !idx_is_free(list, index), "free idx")) return ERR_BAD_ARG;
-
-    if (ensure_slot(list) != OK) return ERR_ALLOC;
+    INS_MACROS;
     size_t n      = pop_free(list);
     list->data[n] = elem;
 
-    if (index == 0) {
-        // push front
-        const size_t head = list->next[0];
-        const size_t tail = list->prev[0];
-        if (head == 0) {
-            list->next[n] = n;
-            list->prev[n] = n;
-            list->next[0] = n;
-            list->prev[0] = n;
-        } else {
-            list->next[n]    = head;
-            list->prev[n]    = tail;
-            list->prev[head] = n;
-            list->next[tail] = n;
-            list->next[0]    = n;
-        }
-    } else {
-        const size_t nxt  = list->next[index];
-        list->next[index] = n;
-        list->prev[n]     = index;
-        list->next[n]     = nxt;
-        list->prev[nxt]   = n;
-        
-        if (index == list->prev[0]) {
-            list->prev[0] = n;
-        }
+    
+    if (list->list_size == 1)
+    {
+        list->next[0] = list->prev[0] = n;
+        list->next[n] = list->prev[n] = n;
+        return OK;
     }
+    size_t left  = (index == 0) ? list->prev[0] : index;
+    size_t right = (index == 0) ? list->next[0] : list->next[index];
+    link_between(list, left, n, right);
+
+    if (index == 0) list->next[0] = n;
+    if (index == list->prev[0]) list->prev[0] = n;
 
     return OK;
 }
 
 err_t ins_elem_before(list_t * const list, const size_t index, const list_elem_t elem)
 {
-    if (!CHECK(ERROR, list, "null")) return ERR_BAD_ARG;
-    if (!CHECK(ERROR, idx_valid(list, index), "range")) return ERR_BAD_ARG;
-    if (index != 0 && !CHECK(ERROR, !idx_is_free(list, index), "free idx")) return ERR_BAD_ARG;
+    INS_MACROS;
 
-    if (ensure_slot(list) != OK) return ERR_ALLOC;
-    size_t n = pop_free(list);
-    list->data[n] = elem;
-
-    if (index == 0) {
-        const size_t head = list->next[0];
-        const size_t tail = list->prev[0];
-        if (head == 0) {
-            list->next[n] = n;
-            list->prev[n] = n;
-            list->next[0] = n;
-            list->prev[0] = n;
-        } else {
-            list->next[n]   = head;
-            list->prev[n]   = tail;
-            list->next[tail]= n;
-            list->prev[head]= n;
-            list->prev[0]   = n;
-        }    
-    } else {
-        const size_t prv = list->prev[index];
-        list->prev[index] = n;
-        list->prev[n]     = prv;
-        list->next[n]     = index;
-        list->next[prv]   = n;
-
-        if (index == list->next[0]) {
-            list->next[0] = n;
-        }    
-    }
-    return OK;
+    size_t before = (index == 0) ? list->prev[0] : list->prev[index];
+    return ins_elem_after(list, before, elem);
 }
+
+#undef INS_MACROS
 
 err_t del_elem(list_t * const list, const size_t index)
 {
@@ -390,3 +367,75 @@ err_t push_back(list_t * const list, list_elem_t elem, size_t * const real_index
     *real_index = list->prev[0];
     return OK;
 }
+
+#define LIST_LIN_FREE_MACROS \
+    free(list->data);        \
+    free(list->next);        \
+    free(list->prev);        \
+
+#define LIST_LIN_MACROS   \
+    LIST_LIN_FREE_MACROS; \
+    list->data = ndata;   \
+    list->next = nnext;   \
+    list->prev = nprev;   \
+    list->list_capacity = newc;
+
+err_t list_linearize(list_t * const list)
+{
+    if (!list) return ERR_BAD_ARG;
+
+    const size_t size = list->list_size;
+    const size_t minc = DEFAULT_LIST_SIZE;
+    const size_t newc = (size + 1 < minc) ? minc : (size + 1);
+
+    list_elem_t *ndata = (list_elem_t*)calloc(newc, sizeof(*ndata));
+    size_t      *nnext = (size_t*)     calloc(newc, sizeof(*nnext));
+    size_t      *nprev = (size_t*)     calloc(newc, sizeof(*nprev));
+
+    if (!ndata || !nnext || !nprev) { LIST_LIN_FREE_MACROS; return ERR_ALLOC; }
+
+    if (size > 0) 
+    {
+        size_t cur = list->next[0];
+
+        for (size_t pos = 1; pos <= size; ++pos) 
+        {
+            ndata[pos] = list->data[cur];
+            cur = list->next[cur];
+        }
+
+        for (size_t pos = 1; pos <= size; ++pos) 
+        {
+            nnext[pos] = (pos == size) ? 1 : (pos + 1);
+            nprev[pos] = (pos == 1)    ? size : (pos - 1);
+        }
+
+        nnext[0] = 1;
+        nprev[0] = size;
+    } else {
+        nnext[0] = 0;
+        nprev[0] = 0;
+    }
+
+    if (newc > size + 1) 
+    {
+        const size_t start = size + 1;
+        for (size_t i = start; i + 1 < newc; ++i) 
+        {
+            nnext[i] = i + 1;
+            nprev[i] = LIST_FREE;
+        }
+        nnext[newc - 1] = 0;
+        nprev[newc - 1] = LIST_FREE;
+        list->free_index = start;
+    } else {
+        list->free_index = 0;
+    }
+
+    LIST_LIN_MACROS;
+
+    return OK;
+}
+
+#undef LIST_LIN_MACROS
+#undef LIST_LIN_FREE_MACROS
