@@ -74,7 +74,7 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
     char dot_path[512], svg_name[64], svg_path[512];
     snprintf(svg_name, sizeof(svg_name), "img%zu.svg", s_img_counter++);
     snprintf(dot_path, sizeof(dot_path), "temp/graph.dot");
-    snprintf(svg_path, sizeof(svg_path), "temp/%s", svg_name);
+    snprintf(svg_path, sizeof(svg_path), "temp/l%s", svg_name);
 
     FILE *dot = fopen(dot_path, "w");
     if (!dot) { free(on_main); free(on_free); free(virtpos); return; }
@@ -248,7 +248,7 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
     fprintf(html, "<h3>Head: %zu, Tail: %zu, Free: %zu</h3>\n", list->next[0], list->prev[0], list->free_index);
     fprintf(html, "<h3>Linearized: %d, needLinear: 1</h3>\n", linear);
     fprintf(html, "<h3>List addr: 0x%p</h3>\n", (void*)list);
-    fprintf(html, "<img src=\"temp/%s\" />\n", svg_name);
+    fprintf(html, "<img src=\"temp/l%s\" />\n", svg_name);
     fprintf(html, "</hr>\n");
     fclose(html);
 

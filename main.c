@@ -111,42 +111,23 @@ void test_tree()
 
     CREATE_TREE(t1);
 
-    CREATE_NODE(n1);
-    CREATE_NODE(n2);
-    CREATE_NODE(n3);
-    CREATE_NODE(n4);
-    CREATE_NODE(n5);
-    CREATE_NODE(n6);
-    CREATE_NODE(n7);
-    CREATE_NODE(n8);
-    CREATE_NODE(n9);
-
-    SET_NODE_VALUES(n1, 10, n2, n3);
-    SET_NODE_VALUES(n2, 5,  n4, n5);
-    SET_NODE_VALUES(n3, 20, n6, NULL);
-    SET_NODE_VALUES(n4, 3,  NULL, NULL);
-    SET_NODE_VALUES(n5, 7,  n7, NULL);
-    SET_NODE_VALUES(n6, 15, n8, n9);
-    SET_NODE_VALUES(n7, 6,  NULL, NULL);
-    SET_NODE_VALUES(n8, 13, NULL, NULL);
-    SET_NODE_VALUES(n9, 16, NULL, NULL);
-
-    t1.root = n1;
+    tree_insert(&t1, 10);
+    tree_insert(&t1, 5);
+    tree_insert(&t1, 20); 
+    tree_insert(&t1, 3);
+    tree_insert(&t1, 7); 
+    tree_insert(&t1, 15);
+    tree_insert(&t1, 13);
+    tree_insert(&t1, 16);
 
     tree_print(&t1);
     TDUMP(&t1, "test");
 
-    free(n1);
-    free(n2);
-    free(n3);
-    free(n4);
-    free(n5);
-    free(n6);
-    free(n7);
-    free(n8);
-    free(n9);
+    tree_insert(&t1, 6);
+    tree_print(&t1);
+    TDUMP(&t1, "test"); 
 
-    // tree_dtor(&t1);
+    tree_dtor(&t1);
 }
 
 int main(const int argc, char* const argv[])

@@ -35,7 +35,7 @@ typedef struct
     node_ctor((node_name))
 
 err_t node_ctor(node_t * const node);
-err_t node_dtor(node_t * const node);
+err_t node_dtor(node_t * node);
 
 err_t tree_ctor(tree_t * const tree);
 err_t tree_dtor(tree_t * const tree);
@@ -45,9 +45,9 @@ err_t tree_verify(const tree_t * const tree);
 err_t tree_print_node(const node_t * const node);
 err_t tree_print     (const tree_t * const tree);
 
-err_t tree_delete_node(const node_t * node);
+err_t tree_delete_node(node_t * node);
 err_t tree_clear      (const tree_t * const tree);
 
-err_t tree_insert     (tree_t * const tree);
+err_t tree_insert     (tree_t * const tree, const tree_elem_t data);
 
 #endif

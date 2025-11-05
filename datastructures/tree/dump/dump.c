@@ -38,13 +38,11 @@ void tree_dump(const tree_t *tree, const char *title, const char *html_file)
 {
     if (!tree || !html_file) return;
 
-    ensure_temp_dir();
-
     const node_t *root = tree->root;
     char dot_path[512], svg_name[64], svg_path[512];
     snprintf(svg_name, sizeof(svg_name), "img%zu.svg", s_img_counter++);
     snprintf(dot_path, sizeof(dot_path), "temp/graph.dot");
-    snprintf(svg_path, sizeof(svg_path), "temp/%s", svg_name);
+    snprintf(svg_path, sizeof(svg_path), "temp/t%s", svg_name);
 
     FILE *dot = fopen(dot_path, "w");
     if (!dot) return;
@@ -208,7 +206,7 @@ void tree_dump(const tree_t *tree, const char *title, const char *html_file)
     fprintf(dot, "}\n");
     fclose(dot);
 
-    char cmd[1024];
+    char cmd[4096];
     snprintf(cmd, sizeof(cmd), "dot -T svg \"%s\" -o \"%s\"", dot_path, svg_path);
     system(cmd);
 
@@ -217,7 +215,7 @@ void tree_dump(const tree_t *tree, const char *title, const char *html_file)
         fprintf(html, "<h2>%s</h2>\n", title ? title : "Tree");
         fprintf(html, "<h3>Nodes: %zu</h3>\n", n);
         fprintf(html, "<h3>Root: 0x%p</h3>\n", (void*)root);
-        fprintf(html, "<img src=\"temp/%s\" />\n", svg_name);
+        fprintf(html, "<img src=\"temp/t%s\" />\n", svg_name);
         fprintf(html, "<hr/>\n");
         fclose(html);
     }
