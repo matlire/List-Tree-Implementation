@@ -183,7 +183,7 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
         {
             if (!paired_from[i])
             {
-                fprintf(dot, "label%zu -> label%zu [color=\"%s\", penwidth=2.0, dir=both, arrowhead=vee, arrowtail=vee];\n", i, j, EDGE_NEXT);
+                fprintf(dot, "label%zu -> label%zu [color=\"#D0D5DD\", penwidth=2.0, dir=both, arrowhead=vee, arrowtail=vee];\n", i, j);
                 paired_from[i] = true;
             }
         }

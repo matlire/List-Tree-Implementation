@@ -1,5 +1,5 @@
-#ifndef DUMP_H
-#define DUMP_H
+#ifndef LDUMP_H
+#define LDUMP_H
 
 #include "../list.h"
 #include "../../../libs/logging/logging.h"
