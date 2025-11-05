@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <limits.h>
 
+#define MAX_RECURSION_LIMIT 4096
+
 typedef int tree_elem_t;
 
 typedef struct node_t
@@ -42,10 +44,10 @@ err_t tree_dtor(tree_t * const tree);
 
 err_t tree_verify(const tree_t * const tree);
 
-err_t tree_print_node(const node_t * const node);
+err_t tree_print_node(const node_t * const node, size_t iter);
 err_t tree_print     (const tree_t * const tree);
 
-err_t tree_delete_node(node_t * node);
+err_t tree_delete_node(node_t * node, size_t iter);
 err_t tree_clear      (const tree_t * const tree);
 
 err_t tree_insert     (tree_t * const tree, const tree_elem_t data);

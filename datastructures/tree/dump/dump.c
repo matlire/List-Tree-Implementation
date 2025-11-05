@@ -142,10 +142,10 @@ void tree_dump(const tree_t *tree, const char *title, const char *html_file)
           "n%zu [color=\"%s\", fillcolor=\"%s\", penwidth=2.0, label=<"
           "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\" COLOR=\"%s\">"
           "<TR><TD COLSPAN=\"2\" BGCOLOR=\"%s\"><B><FONT COLOR=\"%s\">node</FONT></B></TD></TR>"
-          "<TR><TD ALIGN=\"LEFT\">addr</TD><TD ALIGN=\"LEFT\">0x%p</TD></TR>"
+          "<TR><TD ALIGN=\"LEFT\">addr</TD><TD ALIGN=\"LEFT\">%p</TD></TR>"
           "<TR><TD ALIGN=\"LEFT\">data</TD><TD ALIGN=\"LEFT\">%d</TD></TR>"
-          "<TR><TD ALIGN=\"LEFT\">left</TD><TD ALIGN=\"LEFT\">0x%p</TD></TR>"
-          "<TR><TD ALIGN=\"LEFT\">right</TD><TD ALIGN=\"LEFT\">0x%p</TD></TR>"
+          "<TR><TD ALIGN=\"LEFT\">left</TD><TD ALIGN=\"LEFT\">%p</TD></TR>"
+          "<TR><TD ALIGN=\"LEFT\">right</TD><TD ALIGN=\"LEFT\">%p</TD></TR>"
           "<TR><TD ALIGN=\"LEFT\">depth</TD><TD ALIGN=\"LEFT\">%zu</TD></TR>"
           "</TABLE>"
           ">];\n",

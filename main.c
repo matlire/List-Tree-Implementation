@@ -123,6 +123,8 @@ void test_tree()
     tree_print(&t1);
     TDUMP(&t1, "test");
 
+    printf("\n");
+
     tree_insert(&t1, 6);
     tree_print(&t1);
     TDUMP(&t1, "test"); 

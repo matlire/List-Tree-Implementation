@@ -134,7 +134,7 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
         fprintf(dot,
           "label%zu [color=\"%s\", fillcolor=\"%s\", penwidth=2.1, label=<"
           "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\" COLOR=\"#D0D5DD\">"
-            "<TR><TD COLSPAN=\"6\" BGCOLOR=\"%s\"><B>addr:</B> 0x%p</TD></TR>"
+            "<TR><TD COLSPAN=\"6\" BGCOLOR=\"%s\"><B>addr:</B> %p</TD></TR>"
             "<TR>"
               "<TD BGCOLOR=\"%s\"><B>phys:</B> %zu</TD>"
               "<TD BGCOLOR=\"%s\"><B>virt:</B> %s</TD>"
