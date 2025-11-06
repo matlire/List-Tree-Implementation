@@ -13,7 +13,9 @@ err_t node_ctor(node_t * const node)
 
 err_t node_dtor(node_t * node)
 {
-    if (node) free(node);
+    if (node == NULL) return ERR_BAD_ARG;
+    if (node->data) free(node->data);
+    free(node);
     return OK;
 }
 
@@ -67,7 +69,7 @@ err_t tree_print_node(const node_t * const node, size_t iter)
     printf("(");
     if (node->left != NULL)
         (void)tree_print_node(node->left, iter);
-    printf("%d", node->data);
+    printf("\"%s\"", node->data);
     if (node->right != NULL)
         (void)tree_print_node(node->right, iter);
     printf(")");
@@ -129,52 +131,48 @@ err_t tree_insert(tree_t * const tree, const tree_elem_t data)
     if (!CHECK(ERROR, tree != NULL, "tree_insert: tree is NULL"))
         return ERR_BAD_ARG;
 
-    node_t* node = (node_t*)calloc(1, sizeof(node_t));
-    if (!CHECK(ERROR, node != NULL, "tree_insert: alloc failed"))
+    node_t *node = (node_t*)calloc(1, sizeof(*node));
+    if (!CHECK(ERROR, node != NULL, "tree_insert: node alloc failed"))
         return ERR_ALLOC;
 
-    if (!CHECK(ERROR, node_ctor(node) == OK, "tree_insert: node_ctor failed"))
-    {
-        free(node);
-        return ERR_CORRUPT;
+    if (data != NULL) {
+        size_t len = strlen(data);
+        char *copy = (char*)calloc(len + 1, 1);
+        if (!CHECK(ERROR, copy != NULL, "tree_insert: data alloc failed")) {
+            free(node);
+            return ERR_ALLOC;
+        }
+        memcpy(copy, data, len);
+        node->data = copy;
     }
-
-    node->data = data;
 
     tree->nodes_amount += 1;
 
-    if (tree->root == NULL)
-    {
+    if (tree->root == NULL) {
         tree->root = node;
         return OK;
     }
 
-    node_t* cur = tree->root;
-    size_t   i  = 0;
+    node_t *cur = tree->root;
+    size_t  i   = 0;
 
-    for (; i < MAX_RECURSION_LIMIT; ++i)
-    {
-        if (cur->left == NULL)
-        {
-            cur->left = node;
-            break;
-        }
+    for (; i < MAX_RECURSION_LIMIT; ++i) {
+        if (cur->left == NULL)  { cur->left  = node; break; }
+        if (cur->right == NULL) { cur->right = node; break; }
 
-        if (cur->right == NULL)
-        {
-            cur->right = node;
-            break;
-        }
-
-        if (cur->data >= data)
-            cur = cur->left;
-        else
-            cur = cur->right;
+        int c = atoi(cur->data ? cur->data : "0");
+        int d = atoi(node->data ? node->data : "0");
+        cur = (c >= d) ? cur->left : cur->right;
     }
 
     if (!CHECK(ERROR, i < MAX_RECURSION_LIMIT,
-               "tree_insert: descent exceeded limit"))
+               "tree_insert: descent exceeded limit")) {
+        free(node->data);
+        free(node);
+        tree->nodes_amount -= 1;
         return ERR_CORRUPT;
+    }
 
     return OK;
 }
+

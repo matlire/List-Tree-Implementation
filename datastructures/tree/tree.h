@@ -13,7 +13,7 @@
 
 #define MAX_RECURSION_LIMIT 4096
 
-typedef int tree_elem_t;
+typedef char* tree_elem_t;
 
 typedef struct node_t
 {

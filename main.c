@@ -111,21 +111,21 @@ void test_tree()
 
     CREATE_TREE(t1);
 
-    tree_insert(&t1, 10);
-    tree_insert(&t1, 5);
-    tree_insert(&t1, 20); 
-    tree_insert(&t1, 3);
-    tree_insert(&t1, 7); 
-    tree_insert(&t1, 15);
-    tree_insert(&t1, 13);
-    tree_insert(&t1, 16);
+    tree_insert(&t1, "10");
+    tree_insert(&t1, "5");
+    tree_insert(&t1, "20"); 
+    tree_insert(&t1, "3");
+    tree_insert(&t1, "7"); 
+    tree_insert(&t1, "15");
+    tree_insert(&t1, "13");
+    tree_insert(&t1, "16");
 
     tree_print(&t1);
     TDUMP(&t1, "test");
 
     printf("\n");
 
-    tree_insert(&t1, 6);
+    tree_insert(&t1, "6");
     tree_print(&t1);
     TDUMP(&t1, "test"); 
 

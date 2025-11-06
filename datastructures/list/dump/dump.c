@@ -159,21 +159,31 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
 
     const size_t head = list->next[0];
     const size_t tail = list->prev[0];
+    const size_t freei = list->free_index;
+
+    fprintf(dot, "{ rank=min; headN [shape=oval, style=filled, fillcolor=\"#F3F4F6\", color=\"%s\", penwidth=1.7, label=\"head\"]; tailN [shape=oval, style=filled, fillcolor=\"#F3F4F6\", color=\"%s\", penwidth=1.7, label=\"tail\"]; freeN [shape=oval, style=filled, fillcolor=\"#F3F4F6\", color=\"%s\", penwidth=1.7, label=\"free\"]; }\n", EDGE_NEXT, EDGE_PREV, OUT_FREE);
+
+    if (in_bounds(head, capacity)) fprintf(dot, "headN -> label%zu [color=\"%s\", penwidth=2.2];\n", head, EDGE_NEXT);
+    if (in_bounds(tail, capacity)) fprintf(dot, "tailN -> label%zu [color=\"%s\", penwidth=2.2];\n", tail, EDGE_PREV);
+    if (freei && in_bounds(freei, capacity)) fprintf(dot, "freeN -> label%zu [color=\"%s\", penwidth=2.2, style=dashed];\n", freei, EDGE_FREE);
 
     bool *paired_from = (bool*)calloc(capacity, sizeof(bool));
     if (!paired_from) { free(on_main); free(on_free); free(virtpos); fclose(dot); return; }
 
+    
     for (size_t i = 0; i < capacity; ++i)
     {
-        if (i != 0 && is_free_node(list, i)) continue;
+        if (i == 0) continue;
+        if (is_free_node(list, i)) continue;
         size_t j = list->next[i];
         if (!j) continue;
 
         if (!in_bounds(j, capacity) || is_free_node(list, j))
         {
-            fprintf(dot, "badn_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
-                    i, BAD_FILL, BAD_OUT, (size_t)j);
-            fprintf(dot, "label%zu -> badn_%zu [color=\"%s\", penwidth=2.5, style=bold];\n", i, i, EDGE_PREV_PATCHED);
+                fprintf(dot, 
+                        "badn_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n", i, BAD_FILL, BAD_OUT, (size_t)j);
+                fprintf(dot, 
+                        "label%zu -> badn_%zu [color=\"%s\", penwidth=2.5, style=bold];\n", i, i, EDGE_PREV_PATCHED);
             continue;
         }
 
@@ -183,7 +193,8 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
         {
             if (!paired_from[i])
             {
-                fprintf(dot, "label%zu -> label%zu [color=\"#D0D5DD\", penwidth=2.0, dir=both, arrowhead=vee, arrowtail=vee];\n", i, j);
+                fprintf(dot, 
+                        "label%zu -> label%zu [color=\"#D0D5DD\", penwidth=2.0, dir=both, arrowhead=vee, arrowtail=vee];\n", i, j);
                 paired_from[i] = true;
             }
         }
@@ -195,14 +206,15 @@ void list_dump(const list_t *list, const char *title, const char *html_file)
 
     for (size_t i = 0; i < capacity; ++i)
     {
-        if (i != 0 && is_free_node(list, i)) continue;
+        if (i == 0) continue;
+        if (is_free_node(list, i)) continue;
         size_t j = list->prev[i];
         if (!j) continue;
 
         if (!in_bounds(j, capacity) || is_free_node(list, j))
         {
-            fprintf(dot, "badp_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n",
-                    i, BAD_FILL, BAD_OUT, (size_t)j);
+            fprintf(dot, 
+                    "badp_%zu [shape=hexagon, fillcolor=\"%s\", style=\"filled\", color=\"%s\", penwidth=4, label=\"%zu\"];\n", i, BAD_FILL, BAD_OUT, (size_t)j);
             fprintf(dot, "label%zu -> badp_%zu [color=\"%s\", penwidth=2.5, style=bold];\n", i, i, EDGE_PREV_PATCHED);
             continue;
         }

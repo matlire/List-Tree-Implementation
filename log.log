@@ -1,4 +1,2 @@
-[30-10-2025 16:52:05 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch
-[03-11-2025 23:27:08 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch
-[04-11-2025 00:20:37 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch
-[04-11-2025 00:29:51 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch
+[06-11-2025 14:54:18 ERROR] [File datastructures/list/list.c at line 178 at list_verify] verify: next->prev mismatch
+[06-11-2025 14:54:48 ERROR] [File datastructures/list/list.c at line 211 at list_verify] verify: revisit free node
